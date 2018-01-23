@@ -1,0 +1,8 @@
+development:
+  app_id: 575870176085004
+  secret: f0d62f39632d9846b27d20c85d614a87
+  token: 575870176085004|QgKHvTsZfQgKd4jZIVlSq-ZMaHc
+production:
+  app_id: 835308879856695
+  secret: b02505d45ad717f89ea999e3b23c9517
+  token: 835308879856695|9EBP4wSC1FYCdH9WeM_CJTqar10
