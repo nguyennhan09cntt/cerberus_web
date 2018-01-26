@@ -6,7 +6,7 @@ namespace :batch do
   task :ati_spam => :environment do  |t, args|
     puts "Begin Task"
     group_id = '545206412228291'
-    site = Site.where('facebook_id = :group_id', {group_id: group_id}).first
+    #site = Site.where('facebook_id = :group_id', {group_id: group_id}).first
     access_token = 'EAAL3tYEPxDcBAD4k60d5PA9xwCblTZBPQRf0BrDKfpfZBsEDA6OE68nBhXnk3RdrC4SIRRRv7cw108ZCnYVBJ4mk8NIN6Jcmv3cVArFzFG8ZCsteo8QqvZBAHD0HoGero3CSnYfNJWDWAfpGI3f7rZCzdjQHYjMsoZD'
     if valid_user_token(access_token)
       p "valid_user_token"
@@ -20,34 +20,40 @@ namespace :batch do
         }
       )
 
-      url = 'http://127.0.0.1:5050/api/'
-      url = 'http://ln3.in'
-      response = RestClient.get(url, headers={})
-      p response
+      url = 'http://127.0.0.1:5050/api/classify/'
+      
+      posts.each do |fpost|
+        begin
+          post = {}
+          #post[:uid] = Post.random_uid(site[:uid])
+          post[:facebook_id] = fpost['id']
+         # post[:site_id] = site[:id]
+          post[:status] = 2
+          post[:created_at] = DateTime.parse(fpost['created_time']) + 7.hours
 
-      # posts.each do |fpost|
-      #   begin
-      #     post = {}
-      #     post[:uid] = Post.random_uid(site[:uid])
-      #     post[:facebook_id] = fpost['id']
-      #     post[:site_id] = site[:id]
-      #     post[:status] = 2
-      #     post[:created_at] = DateTime.parse(fpost['created_time']) + 7.hours
+          
+          if fpost['message'].present?
+          	input  = fpost['message'].downcase
+          	input = input.encode('UTF-8', :invalid => :replace, :undef => :replace)
+	        response = RestClient.post(url, {params: {input: input}, content_type: :json, accept: :json})	      
+		    status = JSON.parse(response.body)
+		    p status
+		  else
+		  	post[:spam] = 1 
+	  	  end
 
-      #     post[:spam] = 1 if  post['message'].blank?
+          times = [100.0, 200.0, 300.0, 150.0, 80.0, 110.0]
+          time = times.sample
+          #sleep(time)
+        rescue => ex
+          msg = ex.message +' APP TOKEN: '+ FACEBOOK_CONFIG['token']
+          p msg
+          sleep(100.0)
+        ensure
+          next
+        end
 
-      #     times = [100.0, 200.0, 300.0, 150.0, 80.0, 110.0]
-      #     time = times.sample
-      #     sleep(time)
-      #   rescue => ex
-      #     msg = ex.message +' APP TOKEN: '+ FACEBOOK_CONFIG['token']
-      #     p msg
-      #     sleep(100.0)
-      #   ensure
-      #     next
-      #   end
-
-      # end
+      end
     end
 
 
